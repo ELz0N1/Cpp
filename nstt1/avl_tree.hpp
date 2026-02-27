@@ -9,7 +9,8 @@ using namespace std;
 struct AVLNode {
   AVLNode(int k);
   AVLNode(const AVLNode& other);
-  AVLNode& operator=(const AVLNode& other);
+  AVLNode(AVLNode&& other);
+  AVLNode& operator=(AVLNode other);
   ~AVLNode();
 
   int key;
@@ -22,7 +23,8 @@ class AVLTree {
  public:
   AVLTree();
   AVLTree(const AVLTree& other);
-  AVLTree& operator=(const AVLTree& other);
+  AVLTree(AVLTree&& other);
+  AVLTree& operator=(AVLTree other);
   ~AVLTree();
 
   void insert(int key) { root_ = insert(root_, key); }

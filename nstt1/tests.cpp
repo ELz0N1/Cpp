@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <utility>
+
 #include "avl_tree.hpp"
 
 class AVLTreeTest : public ::testing::Test {
@@ -80,6 +82,46 @@ TEST_F(AVLTreeTest, SelfAssignment) {
   ASSERT_NO_THROW({ tree = tree; });
   EXPECT_TRUE(tree.search(10));
   EXPECT_TRUE(tree.search(20));
+}
+
+TEST_F(AVLTreeTest, MoveConstructor) {
+  AVLTree movedTree(std::move(tree));
+
+  EXPECT_TRUE(movedTree.search(10));
+  EXPECT_TRUE(movedTree.search(20));
+  EXPECT_TRUE(movedTree.search(30));
+
+  EXPECT_FALSE(tree.search(10));
+  EXPECT_FALSE(tree.search(30));
+}
+
+TEST_F(AVLTreeTest, MoveAssignmentOperator) {
+  AVLTree targetTree;
+  targetTree.insert(100);
+  targetTree = std::move(tree);
+
+  EXPECT_TRUE(targetTree.search(20));
+  EXPECT_FALSE(targetTree.search(100));
+
+  EXPECT_FALSE(tree.search(30));
+}
+
+TEST_F(AVLTreeTest, ChainMoveAssignments) {
+  AVLTree treeA;
+  treeA.insert(1);
+
+  AVLTree treeB = std::move(treeA);
+  AVLTree treeC = std::move(treeB);
+
+  EXPECT_TRUE(treeC.search(1));
+  EXPECT_FALSE(treeB.search(1));
+  EXPECT_FALSE(treeA.search(1));
+}
+
+TEST_F(AVLTreeTest, SelfMoveAssignment) {
+  ASSERT_NO_THROW({ tree = std::move(tree); });
+
+  EXPECT_TRUE(tree.search(30));
 }
 
 int main(int argc, char** argv) {

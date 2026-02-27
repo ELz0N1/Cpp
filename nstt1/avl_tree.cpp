@@ -14,13 +14,17 @@ AVLNode::AVLNode(const AVLNode& other)
       left(other.left),
       right(other.right) {}
 
-AVLNode& AVLNode::operator=(const AVLNode& other) {
-  if (this != &other) {
-    key = other.key;
-    left = other.left;
-    right = other.right;
-    height = other.height;
-  }
+AVLNode::AVLNode(AVLNode&& other)
+    : key(other.key),
+      height(other.height),
+      left(std::move(other.left)),
+      right(std::move(other.right)) {}
+
+AVLNode& AVLNode::operator=(AVLNode other) {
+  std::swap(key, other.key);
+  std::swap(height, other.height);
+  std::swap(left, other.left);
+  std::swap(right, other.right);
   return *this;
 }
 
@@ -31,10 +35,12 @@ AVLTree::AVLTree() : root_(nullptr) {}
 
 AVLTree::AVLTree(const AVLTree& other) { root_ = copy(other.root_); }
 
-AVLTree& AVLTree::operator=(const AVLTree& other) {
-  if (this != &other) {
-    root_ = copy(other.root_);
-  }
+AVLTree::AVLTree(AVLTree&& other) : root_(other.root_) {
+  other.root_ = nullptr;
+}
+
+AVLTree& AVLTree::operator=(AVLTree other) {
+  std::swap(root_, other.root_);
   return *this;
 }
 
