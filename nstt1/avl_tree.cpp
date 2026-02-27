@@ -8,10 +8,35 @@ using namespace std;
 /* AVL Node Implementation */
 AVLNode::AVLNode(int k) : key(k), left(nullptr), right(nullptr), height(1) {}
 
+AVLNode::AVLNode(const AVLNode& other)
+    : key(other.key),
+      height(other.height),
+      left(other.left),
+      right(other.right) {}
+
+AVLNode& AVLNode::operator=(const AVLNode& other) {
+  if (this != &other) {
+    key = other.key;
+    left = other.left;
+    right = other.right;
+    height = other.height;
+  }
+  return *this;
+}
+
 AVLNode::~AVLNode() = default;
 
 /* AVL Tree Implementation */
 AVLTree::AVLTree() : root_(nullptr) {}
+
+AVLTree::AVLTree(const AVLTree& other) { root_ = copy(other.root_); }
+
+AVLTree& AVLTree::operator=(const AVLTree& other) {
+  if (this != &other) {
+    root_ = copy(other.root_);
+  }
+  return *this;
+}
 
 AVLTree::~AVLTree() { destroyTree(root_); }
 
@@ -183,4 +208,19 @@ void AVLTree::destroyTree(AVLNode* node) {
 
     delete node;
   }
+}
+
+AVLNode* AVLTree::copy(AVLNode* node) {
+  if (node == nullptr) {
+    return nullptr;
+  }
+
+  AVLNode* newNode = new AVLNode(node->key);
+
+  newNode->left = copy(node->left);
+  newNode->right = copy(node->right);
+
+  newNode->height = height(newNode);
+
+  return newNode;
 }

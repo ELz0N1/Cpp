@@ -8,6 +8,8 @@ using namespace std;
 
 struct AVLNode {
   AVLNode(int k);
+  AVLNode(const AVLNode& other);
+  AVLNode& operator=(const AVLNode& other);
   ~AVLNode();
 
   int key;
@@ -19,6 +21,8 @@ struct AVLNode {
 class AVLTree {
  public:
   AVLTree();
+  AVLTree(const AVLTree& other);
+  AVLTree& operator=(const AVLTree& other);
   ~AVLTree();
 
   void insert(int key) { root_ = insert(root_, key); }
@@ -47,6 +51,8 @@ class AVLTree {
   bool search(AVLNode* root_, int key);
 
   void destroyTree(AVLNode* root_);
+
+  AVLNode* copy(AVLNode* node);
 };
 
 #endif
