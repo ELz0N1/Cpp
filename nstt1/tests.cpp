@@ -2,11 +2,12 @@
 
 #include <utility>
 
+#include "avl_tree.cpp"
 #include "avl_tree.hpp"
 
 class AVLTreeTest : public ::testing::Test {
  protected:
-  AVLTree tree;
+  AVLTree<int> tree;
 
   void SetUp() override {
     tree.insert(10);
@@ -64,7 +65,7 @@ TEST_F(AVLTreeTest, CopyConstructorDeepCopy) {
 }
 
 TEST_F(AVLTreeTest, CopyAssignmentOperator) {
-  AVLTree otherTree;
+  AVLTree<int> otherTree;
   otherTree.insert(100);
 
   otherTree = tree;
@@ -96,7 +97,7 @@ TEST_F(AVLTreeTest, MoveConstructor) {
 }
 
 TEST_F(AVLTreeTest, MoveAssignmentOperator) {
-  AVLTree targetTree;
+  AVLTree<int> targetTree;
   targetTree.insert(100);
   targetTree = std::move(tree);
 
@@ -107,7 +108,7 @@ TEST_F(AVLTreeTest, MoveAssignmentOperator) {
 }
 
 TEST_F(AVLTreeTest, ChainMoveAssignments) {
-  AVLTree treeA;
+  AVLTree<int> treeA;
   treeA.insert(1);
 
   AVLTree treeB = std::move(treeA);

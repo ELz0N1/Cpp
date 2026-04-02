@@ -6,21 +6,26 @@
 using namespace std;
 
 /* AVL Node Implementation */
-AVLNode::AVLNode(int k) : key(k), left(nullptr), right(nullptr), height(1) {}
 
-AVLNode::AVLNode(const AVLNode& other)
+template <typename T>
+AVLNode<T>::AVLNode(T k) : key(k), left(nullptr), right(nullptr), height(1) {}
+
+template <typename T>
+AVLNode<T>::AVLNode(const AVLNode& other)
     : key(other.key),
       height(other.height),
       left(other.left),
       right(other.right) {}
 
-AVLNode::AVLNode(AVLNode&& other)
+template <typename T>
+AVLNode<T>::AVLNode(AVLNode&& other)
     : key(other.key),
       height(other.height),
       left(std::move(other.left)),
       right(std::move(other.right)) {}
 
-AVLNode& AVLNode::operator=(AVLNode other) {
+template <typename T>
+AVLNode<T>& AVLNode<T>::operator=(AVLNode other) {
   std::swap(key, other.key);
   std::swap(height, other.height);
   std::swap(left, other.left);
@@ -28,41 +33,54 @@ AVLNode& AVLNode::operator=(AVLNode other) {
   return *this;
 }
 
-AVLNode::~AVLNode() = default;
+template <typename T>
+AVLNode<T>::~AVLNode() = default;
 
 /* AVL Tree Implementation */
-AVLTree::AVLTree() : root_(nullptr) {}
+template <typename T>
+AVLTree<T>::AVLTree() : root_(nullptr) {}
 
-AVLTree::AVLTree(const AVLTree& other) { root_ = copy(other.root_); }
+template <typename T>
+AVLTree<T>::AVLTree(const AVLTree& other) {
+  root_ = copy(other.root_);
+}
 
-AVLTree::AVLTree(AVLTree&& other) : root_(other.root_) {
+template <typename T>
+AVLTree<T>::AVLTree(AVLTree&& other) : root_(other.root_) {
   other.root_ = nullptr;
 }
 
-AVLTree& AVLTree::operator=(AVLTree other) {
+template <typename T>
+AVLTree<T>& AVLTree<T>::operator=(AVLTree other) {
   std::swap(root_, other.root_);
   return *this;
 }
 
-AVLTree::~AVLTree() { destroyTree(root_); }
+template <typename T>
+AVLTree<T>::~AVLTree() {
+  destroyTree(root_);
+}
 
-int AVLTree::height(AVLNode* node) {
+template <typename T>
+int AVLTree<T>::height(AVLNode<T>* node) {
   if (node == nullptr) {
     return 0;
   }
   return node->height;
 }
 
-int AVLTree::balanceFactor(AVLNode* node) {
+template <typename T>
+int AVLTree<T>::balanceFactor(AVLNode<T>* node) {
   if (node == nullptr) {
     return 0;
   }
   return height(node->left) - height(node->right);
 }
 
-AVLNode* AVLTree::rightRotate(AVLNode* y) {
-  AVLNode* x = y->left;
-  AVLNode* T2 = x->right;
+template <typename T>
+AVLNode<T>* AVLTree<T>::rightRotate(AVLNode<T>* y) {
+  AVLNode<T>* x = y->left;
+  AVLNode<T>* T2 = x->right;
 
   x->right = y;
   y->left = T2;
@@ -73,9 +91,10 @@ AVLNode* AVLTree::rightRotate(AVLNode* y) {
   return x;
 }
 
-AVLNode* AVLTree::leftRotate(AVLNode* x) {
-  AVLNode* y = x->right;
-  AVLNode* T2 = y->left;
+template <typename T>
+AVLNode<T>* AVLTree<T>::leftRotate(AVLNode<T>* x) {
+  AVLNode<T>* y = x->right;
+  AVLNode<T>* T2 = y->left;
 
   y->left = x;
   x->right = T2;
@@ -86,9 +105,10 @@ AVLNode* AVLTree::leftRotate(AVLNode* x) {
   return y;
 }
 
-AVLNode* AVLTree::insert(AVLNode* node, int key) {
+template <typename T>
+AVLNode<T>* AVLTree<T>::insert(AVLNode<T>* node, T key) {
   if (node == nullptr) {
-    return new AVLNode(key);
+    return new AVLNode<T>(key);
   }
 
   if (key < node->key) {
@@ -128,15 +148,17 @@ AVLNode* AVLTree::insert(AVLNode* node, int key) {
   return node;
 }
 
-AVLNode* AVLTree::minValueNode(AVLNode* node) {
-  AVLNode* current = node;
+template <typename T>
+AVLNode<T>* AVLTree<T>::minValueNode(AVLNode<T>* node) {
+  AVLNode<T>* current = node;
   while (current->left != nullptr) {
     current = current->left;
   }
   return current;
 }
 
-AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
+template <typename T>
+AVLNode<T>* AVLTree<T>::deleteNode(AVLNode<T>* root_, T key) {
   if (root_ == nullptr) {
     return root_;
   }
@@ -147,7 +169,7 @@ AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
     root_->right = deleteNode(root_->right, key);
   } else {
     if ((root_->left == nullptr) || (root_->right == nullptr)) {
-      AVLNode* temp = root_->left ? root_->left : root_->right;
+      AVLNode<T>* temp = root_->left ? root_->left : root_->right;
       if (temp == nullptr) {
         temp = root_;
         root_ = nullptr;
@@ -156,7 +178,7 @@ AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
       }
       delete temp;
     } else {
-      AVLNode* temp = minValueNode(root_->right);
+      AVLNode<T>* temp = minValueNode(root_->right);
       root_->key = temp->key;
       root_->right = deleteNode(root_->right, temp->key);
     }
@@ -193,7 +215,8 @@ AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
   return root_;
 }
 
-bool AVLTree::search(AVLNode* root_, int key) {
+template <typename T>
+bool AVLTree<T>::search(AVLNode<T>* root_, T key) {
   if (root_ == nullptr) {
     return false;
   }
@@ -207,7 +230,8 @@ bool AVLTree::search(AVLNode* root_, int key) {
   }
 }
 
-void AVLTree::destroyTree(AVLNode* node) {
+template <typename T>
+void AVLTree<T>::destroyTree(AVLNode<T>* node) {
   if (node != nullptr) {
     destroyTree(node->left);
     destroyTree(node->right);
@@ -216,12 +240,13 @@ void AVLTree::destroyTree(AVLNode* node) {
   }
 }
 
-AVLNode* AVLTree::copy(AVLNode* node) {
+template <typename T>
+AVLNode<T>* AVLTree<T>::copy(AVLNode<T>* node) {
   if (node == nullptr) {
     return nullptr;
   }
 
-  AVLNode* newNode = new AVLNode(node->key);
+  AVLNode<T>* newNode = new AVLNode<T>(node->key);
 
   newNode->left = copy(node->left);
   newNode->right = copy(node->right);

@@ -6,55 +6,56 @@
 
 using namespace std;
 
+template <typename T>
 struct AVLNode {
-  AVLNode(int k);
-  AVLNode(const AVLNode& other);
-  AVLNode(AVLNode&& other);
-  AVLNode& operator=(AVLNode other);
-  ~AVLNode();
+  AVLNode<T>(T k);
+  AVLNode<T>(const AVLNode<T>& other);
+  AVLNode<T>(AVLNode<T>&& other);
+  AVLNode<T>& operator=(AVLNode<T> other);
+  ~AVLNode<T>();
 
-  int key;
-  AVLNode* left;
-  AVLNode* right;
+  T key;
+  AVLNode<T>* left;
+  AVLNode<T>* right;
   int height;
 };
 
+template <typename T>
 class AVLTree {
  public:
-  AVLTree();
-  AVLTree(const AVLTree& other);
-  AVLTree(AVLTree&& other);
-  AVLTree& operator=(AVLTree other);
-  ~AVLTree();
+  AVLTree<T>();
+  AVLTree<T>(const AVLTree<T>& other);
+  AVLTree<T>(AVLTree<T>&& other);
+  AVLTree<T>& operator=(AVLTree<T> other);
+  ~AVLTree<T>();
 
-  void insert(int key) { root_ = insert(root_, key); }
+  void insert(T key) { root_ = insert(root_, key); }
 
-  void remove(int key) { root_ = deleteNode(root_, key); }
+  void remove(T key) { root_ = deleteNode(root_, key); }
 
-  bool search(int key) { return search(root_, key); }
+  bool search(T key) { return search(root_, key); }
 
  private:
-  AVLNode* root_;
+  AVLNode<T>* root_;
 
-  int height(AVLNode* node);
+  int height(AVLNode<T>* node);
 
-  int balanceFactor(AVLNode* node);
+  int balanceFactor(AVLNode<T>* node);
 
-  AVLNode* rightRotate(AVLNode* y);
+  AVLNode<T>* rightRotate(AVLNode<T>* y);
+  AVLNode<T>* leftRotate(AVLNode<T>* x);
 
-  AVLNode* leftRotate(AVLNode* x);
+  AVLNode<T>* insert(AVLNode<T>* node, T key);
 
-  AVLNode* insert(AVLNode* node, int key);
+  AVLNode<T>* minValueNode(AVLNode<T>* node);
 
-  AVLNode* minValueNode(AVLNode* node);
+  AVLNode<T>* deleteNode(AVLNode<T>* root_, T key);
 
-  AVLNode* deleteNode(AVLNode* root_, int key);
+  bool search(AVLNode<T>* root_, T key);
 
-  bool search(AVLNode* root_, int key);
+  void destroyTree(AVLNode<T>* root_);
 
-  void destroyTree(AVLNode* root_);
-
-  AVLNode* copy(AVLNode* node);
+  AVLNode<T>* copy(AVLNode<T>* node);
 };
 
 #endif
