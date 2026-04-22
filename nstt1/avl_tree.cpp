@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <stack>
 
 using namespace std;
 
@@ -255,3 +256,47 @@ AVLNode<T>* AVLTree<T>::copy(AVLNode<T>* node) {
 
   return newNode;
 }
+
+template <typename T>
+class AVLTree<T>::iterator {
+ public:
+  iterator(AVLNode<T>* root) { pushLeftSubtree(root); }
+  iterator() = default;
+
+  const T& operator*() const { return node_stack.top()->key; }
+
+  iterator& operator++() {
+    AVLNode<T>* node = node_stack.top();
+    node_stack.pop();
+
+    if (node->right) {
+      pushLeftSubtree(node->right);
+    }
+    return *this;
+  }
+
+  iterator& operator++(int) {
+    iterator tmp = *this;
+    ++(*this);
+    return tmp;
+  }
+
+  bool operator==(const iterator& other) const {
+    if (node_stack.empty() || other.node_stack.empty()) {
+      return node_stack.empty() == other.node_stack.empty();
+    }
+    return node_stack.top() == other.node_stack.top();
+  }
+
+  bool operator!=(const iterator& other) const { return !(*this == other); }
+
+ private:
+  std::stack<AVLNode<T>*> node_stack;
+
+  void pushLeftSubtree(AVLNode<T>* node) {
+    while (node != nullptr) {
+      node_stack.push(node);
+      node = node->left;
+    }
+  }
+};

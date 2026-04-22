@@ -23,11 +23,16 @@ struct AVLNode {
 template <typename T>
 class AVLTree {
  public:
+  class iterator;
   AVLTree<T>();
   AVLTree<T>(const AVLTree<T>& other);
   AVLTree<T>(AVLTree<T>&& other);
   AVLTree<T>& operator=(AVLTree<T> other);
   ~AVLTree<T>();
+
+  iterator begin() { return iterator(root_); }
+
+  iterator end() { return iterator(); }
 
   void insert(T key) { root_ = insert(root_, key); }
 

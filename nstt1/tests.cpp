@@ -125,6 +125,26 @@ TEST_F(AVLTreeTest, SelfMoveAssignment) {
   EXPECT_TRUE(tree.search(30));
 }
 
+TEST_F(AVLTreeTest, IteratorTest) {
+  int result = 0;
+  for (auto&& node : tree) {
+    result += node;
+  }
+  EXPECT_EQ(result, 60);
+}
+
+TEST_F(AVLTreeTest, IteratorTest2) {
+  auto it = tree.begin();
+
+  EXPECT_EQ(*it, 10);
+  ++it;
+  EXPECT_EQ(*it, 20);
+  ++it;
+  EXPECT_EQ(*it, 30);
+  ++it;
+  EXPECT_EQ(it, tree.end());
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
