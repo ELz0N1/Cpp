@@ -6,21 +6,22 @@
 using namespace std;
 
 /* AVL Node Implementation */
-AVLNode::AVLNode(int k) : key(k), left(nullptr), right(nullptr), height(1) {}
+AVLTree::AVLNode::AVLNode(int k)
+    : key(k), left(nullptr), right(nullptr), height(1) {}
 
-AVLNode::AVLNode(const AVLNode& other)
+AVLTree::AVLNode::AVLNode(const AVLNode& other)
+    : key(other.key), height(other.height), left(nullptr), right(nullptr) {}
+
+AVLTree::AVLNode::AVLNode(AVLNode&& other)
     : key(other.key),
       height(other.height),
       left(other.left),
-      right(other.right) {}
+      right(other.right) {
+  other.left = nullptr;
+  other.right = nullptr;
+}
 
-AVLNode::AVLNode(AVLNode&& other)
-    : key(other.key),
-      height(other.height),
-      left(std::move(other.left)),
-      right(std::move(other.right)) {}
-
-AVLNode& AVLNode::operator=(AVLNode other) {
+AVLTree::AVLNode& AVLTree::AVLNode::operator=(AVLNode other) {
   std::swap(key, other.key);
   std::swap(height, other.height);
   std::swap(left, other.left);
@@ -28,7 +29,17 @@ AVLNode& AVLNode::operator=(AVLNode other) {
   return *this;
 }
 
-AVLNode::~AVLNode() = default;
+AVLTree::AVLNode::~AVLNode() {
+  delete left;
+  delete right;
+}
+
+AVLTree::AVLNode* AVLTree::AVLNode::detachSingleChild() {
+  AVLNode* child = left ? left : right;
+  left = nullptr;
+  right = nullptr;
+  return child;
+}
 
 /* AVL Tree Implementation */
 AVLTree::AVLTree() : root_(nullptr) {}
@@ -44,23 +55,23 @@ AVLTree& AVLTree::operator=(AVLTree other) {
   return *this;
 }
 
-AVLTree::~AVLTree() { destroyTree(root_); }
+AVLTree::~AVLTree() { delete root_; }
 
-int AVLTree::height(AVLNode* node) {
+int AVLTree::height(AVLTree::AVLNode* node) {
   if (node == nullptr) {
     return 0;
   }
   return node->height;
 }
 
-int AVLTree::balanceFactor(AVLNode* node) {
+int AVLTree::balanceFactor(AVLTree::AVLNode* node) {
   if (node == nullptr) {
     return 0;
   }
   return height(node->left) - height(node->right);
 }
 
-AVLNode* AVLTree::rightRotate(AVLNode* y) {
+AVLTree::AVLNode* AVLTree::rightRotate(AVLTree::AVLNode* y) {
   AVLNode* x = y->left;
   AVLNode* T2 = x->right;
 
@@ -73,7 +84,7 @@ AVLNode* AVLTree::rightRotate(AVLNode* y) {
   return x;
 }
 
-AVLNode* AVLTree::leftRotate(AVLNode* x) {
+AVLTree::AVLNode* AVLTree::leftRotate(AVLTree::AVLNode* x) {
   AVLNode* y = x->right;
   AVLNode* T2 = y->left;
 
@@ -86,7 +97,7 @@ AVLNode* AVLTree::leftRotate(AVLNode* x) {
   return y;
 }
 
-AVLNode* AVLTree::insert(AVLNode* node, int key) {
+AVLTree::AVLNode* AVLTree::insert(AVLTree::AVLNode* node, int key) {
   if (node == nullptr) {
     return new AVLNode(key);
   }
@@ -128,7 +139,7 @@ AVLNode* AVLTree::insert(AVLNode* node, int key) {
   return node;
 }
 
-AVLNode* AVLTree::minValueNode(AVLNode* node) {
+AVLTree::AVLNode* AVLTree::minValueNode(AVLTree::AVLNode* node) {
   AVLNode* current = node;
   while (current->left != nullptr) {
     current = current->left;
@@ -136,7 +147,7 @@ AVLNode* AVLTree::minValueNode(AVLNode* node) {
   return current;
 }
 
-AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
+AVLTree::AVLNode* AVLTree::deleteNode(AVLTree::AVLNode* root_, int key) {
   if (root_ == nullptr) {
     return root_;
   }
@@ -146,20 +157,15 @@ AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
   } else if (key > root_->key) {
     root_->right = deleteNode(root_->right, key);
   } else {
-    if ((root_->left == nullptr) || (root_->right == nullptr)) {
-      AVLNode* temp = root_->left ? root_->left : root_->right;
-      if (temp == nullptr) {
-        temp = root_;
-        root_ = nullptr;
-      } else {
-        *root_ = *temp;
-      }
-      delete temp;
-    } else {
-      AVLNode* temp = minValueNode(root_->right);
-      root_->key = temp->key;
-      root_->right = deleteNode(root_->right, temp->key);
+    if (root_->left == nullptr || root_->right == nullptr) {
+      AVLNode* child = root_->detachSingleChild();
+      delete root_;
+      return child;
     }
+
+    AVLNode* temp = minValueNode(root_->right);
+    root_->key = temp->key;
+    root_->right = deleteNode(root_->right, temp->key);
   }
 
   if (root_ == nullptr) {
@@ -193,7 +199,7 @@ AVLNode* AVLTree::deleteNode(AVLNode* root_, int key) {
   return root_;
 }
 
-bool AVLTree::search(AVLNode* root_, int key) {
+bool AVLTree::search(AVLTree::AVLNode* root_, int key) {
   if (root_ == nullptr) {
     return false;
   }
@@ -207,16 +213,7 @@ bool AVLTree::search(AVLNode* root_, int key) {
   }
 }
 
-void AVLTree::destroyTree(AVLNode* node) {
-  if (node != nullptr) {
-    destroyTree(node->left);
-    destroyTree(node->right);
-
-    delete node;
-  }
-}
-
-AVLNode* AVLTree::copy(AVLNode* node) {
+AVLTree::AVLNode* AVLTree::copy(AVLTree::AVLNode* node) {
   if (node == nullptr) {
     return nullptr;
   }

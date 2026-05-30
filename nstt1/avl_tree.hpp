@@ -6,19 +6,6 @@
 
 using namespace std;
 
-struct AVLNode {
-  AVLNode(int k);
-  AVLNode(const AVLNode& other);
-  AVLNode(AVLNode&& other);
-  AVLNode& operator=(AVLNode other);
-  ~AVLNode();
-
-  int key;
-  AVLNode* left;
-  AVLNode* right;
-  int height;
-};
-
 class AVLTree {
  public:
   AVLTree();
@@ -32,6 +19,22 @@ class AVLTree {
   void remove(int key) { root_ = deleteNode(root_, key); }
 
   bool search(int key) { return search(root_, key); }
+
+ protected:
+  struct AVLNode {
+    AVLNode(int k);
+    AVLNode(const AVLNode& other);
+    AVLNode(AVLNode&& other);
+    AVLNode& operator=(AVLNode other);
+    ~AVLNode();
+
+    AVLNode* detachSingleChild();
+
+    int key;
+    AVLNode* left;
+    AVLNode* right;
+    int height;
+  };
 
  private:
   AVLNode* root_;
@@ -51,8 +54,6 @@ class AVLTree {
   AVLNode* deleteNode(AVLNode* root_, int key);
 
   bool search(AVLNode* root_, int key);
-
-  void destroyTree(AVLNode* root_);
 
   AVLNode* copy(AVLNode* node);
 };

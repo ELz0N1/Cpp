@@ -4,6 +4,46 @@
 
 #include "avl_tree.hpp"
 
+class AVLNodeTest : public ::testing::Test, public AVLTree {};
+
+TEST_F(AVLNodeTest, MoveConstructorNullifiesSourcePointers) {
+  AVLNode* child = new AVLNode(5);
+  AVLNode parent(10);
+  parent.left = child;
+
+  AVLNode moved(std::move(parent));
+
+  EXPECT_EQ(moved.key, 10);
+  EXPECT_EQ(moved.left, child);
+  EXPECT_EQ(moved.right, nullptr);
+  EXPECT_EQ(parent.left, nullptr);
+  EXPECT_EQ(parent.right, nullptr);
+}
+
+TEST_F(AVLNodeTest, MoveConstructorTransfersOwnedSubtree) {
+  AVLNode* left = new AVLNode(5);
+  AVLNode parent(10);
+  parent.left = left;
+
+  AVLNode moved(std::move(parent));
+
+  EXPECT_EQ(moved.left, left);
+  EXPECT_EQ(parent.left, nullptr);
+}
+
+TEST_F(AVLNodeTest, CopyConstructorDoesNotAliasChildren) {
+  AVLNode* left = new AVLNode(5);
+  AVLNode parent(10);
+  parent.left = left;
+
+  AVLNode copied(parent);
+
+  EXPECT_EQ(copied.key, parent.key);
+  EXPECT_EQ(copied.height, parent.height);
+  EXPECT_EQ(copied.left, nullptr);
+  EXPECT_EQ(copied.right, nullptr);
+}
+
 class AVLTreeTest : public ::testing::Test {
  protected:
   AVLTree tree;
