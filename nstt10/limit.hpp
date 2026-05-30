@@ -14,19 +14,21 @@ class ClassCounter {
  private:
   inline static size_t counter = 0;
 
- public:
-  ClassCounter() {
+  static void check_and_increment() {
     if (counter >= Limit) {
       throw InstanceLimitExceededException();
     }
     ++counter;
   }
 
-  ClassCounter(const ClassCounter& other) = delete;
-  ClassCounter& operator=(const ClassCounter& other) = delete;
+ public:
+  ClassCounter() { check_and_increment(); }
 
-  ClassCounter(ClassCounter&& other) = delete;
-  ClassCounter& operator=(ClassCounter&& other) = delete;
+  ClassCounter(const ClassCounter& other) { check_and_increment(); }
+  ClassCounter& operator=(const ClassCounter& other) { return *this; }
+
+  ClassCounter(ClassCounter&& other) { check_and_increment(); }
+  ClassCounter& operator=(ClassCounter&& other) { return *this; }
 
  protected:
   ~ClassCounter() { --counter; }

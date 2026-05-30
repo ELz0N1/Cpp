@@ -23,3 +23,36 @@ TEST(ClassCounterTest, CounterTest) {
 
   EXPECT_THROW(Counter c4, InstanceLimitExceededException);
 }
+
+TEST(ClassCounterTest, CopyConstructorTest) {
+  Counter obj1;
+  Counter obj2;
+  Counter obj3;
+
+  EXPECT_THROW({ Counter obj4(obj1); }, InstanceLimitExceededException);
+}
+
+TEST(ClassCounterTest, CopyAssignmentTest) {
+  Counter obj1;
+  Counter obj2;
+  Counter obj3;
+
+  EXPECT_NO_THROW({ obj1 = obj2; });
+}
+
+TEST(ClassCounterTest, MoveConstructorTest) {
+  Counter obj1;
+  Counter obj2;
+  Counter obj3;
+
+  EXPECT_THROW(
+      { Counter obj4(std::move(obj1)); }, InstanceLimitExceededException);
+}
+
+TEST(ClassCounterTest, MoveAssignmentTest) {
+  Counter obj1;
+  Counter obj2;
+  Counter obj3;
+
+  EXPECT_NO_THROW({ obj1 = std::move(obj2); });
+}
