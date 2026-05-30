@@ -4,106 +4,78 @@
 
 SquareMatrix::SquareMatrix() : SquareMatrix(0) {}
 
-SquareMatrix::SquareMatrix(size_t size) : matrix_rows_(size, MatrixRow(size)) {}
+SquareMatrix::SquareMatrix(size_t size)
+    : size_(size), data_(size * size, 0.0) {}
 
 SquareMatrix::SquareMatrix(std::vector<double> vec) : SquareMatrix(vec.size()) {
   for (size_t i = 0; i < vec.size(); ++i) {
-    matrix_rows_[i][i] = vec[i];
+    (*this)[i][i] = vec[i];
   }
 }
 
 SquareMatrix& SquareMatrix::operator=(SquareMatrix other) {
-  std::swap(matrix_rows_, other.matrix_rows_);
+  std::swap(data_, other.data_);
+  std::swap(size_, other.size_);
   return *this;
 }
 
-MatrixRow& SquareMatrix::operator[](size_t row) { return matrix_rows_[row]; }
+double* SquareMatrix::operator[](size_t row) {
+  return data_.data() + (row * size_);
+}
+
+const double* SquareMatrix::operator[](size_t row) const {
+  return data_.data() + (row * size_);
+}
 
 SquareMatrix::operator double() const {
   double sum = 0;
-  for (size_t i = 0; i < matrix_rows_.size(); ++i) {
-    sum += matrix_rows_[i].row_[i];
+  for (size_t i = 0; i < data_.size(); ++i) {
+    sum += (*this)[i][i];
   }
   return sum;
 }
 
 SquareMatrix SquareMatrix::operator+(const SquareMatrix& other) {
-  if (matrix_rows_.size() != other.matrix_rows_.size()) {
-    throw std::invalid_argument("Matrices are not the same size!");
-  }
-  size_t size = matrix_rows_.size();
-
-  SquareMatrix result(size);
-  for (size_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < size; ++j) {
-      result[i].row_[j] =
-          matrix_rows_[i].row_[j] + other.matrix_rows_[i].row_[j];
-    }
-  }
-
+  SquareMatrix result = *this;
+  result += other;
   return result;
 }
 
 SquareMatrix SquareMatrix::operator+=(const SquareMatrix& other) {
-  if (matrix_rows_.size() != other.matrix_rows_.size()) {
+  if (size_ != other.size_) {
     throw std::invalid_argument("Matrices are not the same size!");
   }
 
-  size_t size = matrix_rows_.size();
-  for (size_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < size; ++j) {
-      matrix_rows_[i].row_[j] += other.matrix_rows_[i].row_[j];
-    }
+  for (size_t i = 0; i < data_.size(); ++i) {
+    data_[i] += other.data_[i];
   }
 
   return *this;
 }
 
 SquareMatrix SquareMatrix::operator*(const SquareMatrix& other) {
-  if (matrix_rows_.size() != other.matrix_rows_.size()) {
-    throw std::invalid_argument("Matrices are not the same size!");
-  }
-
-  size_t size = matrix_rows_.size();
-
-  SquareMatrix result(size);
-  for (size_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < size; ++j) {
-      for (size_t k = 0; k < size; ++k) {
-        result[i].row_[j] +=
-            matrix_rows_[i].row_[k] * other.matrix_rows_[k].row_[j];
-      }
-    }
-  }
+  SquareMatrix result = *this;
+  result *= other;
   return result;
 }
 
 SquareMatrix SquareMatrix::operator*(int scalar) {
-  size_t size = matrix_rows_.size();
-  SquareMatrix result(size);
-
-  for (size_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < size; ++j) {
-      result[i].row_[j] = matrix_rows_[i].row_[j] * scalar;
-    }
-  }
-
+  SquareMatrix result = *this;
+  result *= scalar;
   return result;
 }
 
 SquareMatrix SquareMatrix::operator*=(const SquareMatrix& other) {
-  if (matrix_rows_.size() != other.matrix_rows_.size()) {
+  if (size_ != other.size_) {
     throw std::invalid_argument("Matrices are not the same size!");
   }
 
-  size_t size = matrix_rows_.size();
-  SquareMatrix tmp(size);
+  SquareMatrix tmp(size_);
 
-  for (size_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < size; ++j) {
-      for (size_t k = 0; k < size; ++k) {
-        tmp[i].row_[j] +=
-            matrix_rows_[i].row_[k] * other.matrix_rows_[k].row_[j];
+  for (size_t i = 0; i < size_; ++i) {
+    for (size_t j = 0; j < size_; ++j) {
+      for (size_t k = 0; k < size_; ++k) {
+        tmp[i][j] += (*this)[i][k] * other[k][j];
       }
     }
   }
@@ -113,31 +85,19 @@ SquareMatrix SquareMatrix::operator*=(const SquareMatrix& other) {
 }
 
 SquareMatrix SquareMatrix::operator*=(int scalar) {
-  size_t size = matrix_rows_.size();
-
-  for (size_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < size; ++j) {
-      matrix_rows_[i].row_[j] *= scalar;
-    }
+  for (size_t i = 0; i < data_.size(); ++i) {
+    data_[i] *= scalar;
   }
 
   return *this;
 }
 
 bool SquareMatrix::operator==(const SquareMatrix& other) {
-  if (matrix_rows_.size() != other.matrix_rows_.size()) {
+  if (size_ != other.size_) {
     return false;
   }
 
-  for (size_t row = 0; row < matrix_rows_.size(); ++row) {
-    for (size_t column = 0; column < matrix_rows_.size(); ++column) {
-      if (matrix_rows_[row].row_[column] !=
-          other.matrix_rows_[row].row_[column]) {
-        return false;
-      }
-    }
-  }
-  return true;
+  return data_ == other.data_;
 }
 
 bool SquareMatrix::operator!=(const SquareMatrix& other) {

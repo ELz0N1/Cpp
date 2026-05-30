@@ -3,19 +3,9 @@
 
 #include <vector>
 
-class MatrixRow {
-  friend class SquareMatrix;
-  std::vector<double> row_;
-
- public:
-  MatrixRow(size_t size) : row_(size) {}
-  MatrixRow(const MatrixRow& other) = default;
-  double& operator[](size_t index) { return row_[index]; }
-  const double& operator[](size_t index) const { return row_[index]; }
-};
-
 class SquareMatrix {
-  std::vector<MatrixRow> matrix_rows_;
+  std::vector<double> data_;
+  size_t size_ = 0;
 
  public:
   SquareMatrix();
@@ -27,7 +17,9 @@ class SquareMatrix {
   SquareMatrix& operator=(SquareMatrix other);
   ~SquareMatrix() = default;
 
-  MatrixRow& operator[](size_t row);
+  double* operator[](size_t row);
+  const double* operator[](size_t row) const;
+  size_t size() const { return size_; }
   operator double() const;
 
   SquareMatrix operator+(const SquareMatrix& other);
